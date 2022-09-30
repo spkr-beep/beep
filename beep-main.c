@@ -571,7 +571,7 @@ int main(const int argc, char *const argv[])
                pipe, and the processes feeding us stdin are buffered,
                we'll have to wait for them, not much to be done about
                that. */
-            setvbuf(stdin, NULL, _IONBF, 0);
+            setvbuf(stdin,  NULL, _IONBF, 0);
             setvbuf(stdout, NULL, _IONBF, 0);
 
             char sin[4096];
