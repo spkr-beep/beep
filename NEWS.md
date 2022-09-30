@@ -5,6 +5,7 @@ The big and user visible changes.
 
 1.4.xx
 ------
+  * Silence the speaker on SIGHUP (like we do on SIGINT, SIGTERM)
 
 1.4.12
 ------

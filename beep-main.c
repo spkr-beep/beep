@@ -124,10 +124,10 @@ volatile sig_atomic_t global_abort = false;
 
 
 /**
- * Signal handler for signals like SIGINT and SIGTERM.
+ * Signal handler for signals like SIGHUP, SIGINT and SIGTERM.
  *
- * If we get interrupted, it would be nice to not leave the speaker
- * beeping in perpetuity.
+ * If we get terminated in any way, it would be nice to not leave the
+ * speaker beeping in perpetuity.
  *
  * Everything called from this signal handler must be thread-safe,
  * signal-safe, reentrant including all API functions.  Otherwise, we
@@ -143,7 +143,7 @@ volatile sig_atomic_t global_abort = false;
  *   * strerror_r(3): MT-safe
  *   * strlen(3):     MT-safe
  *
- * Just setting a global flag is MT-safe.
+ * Just setting a global flag of type sig_atomic_t is MT-safe.
  *
  * @param unused_signum The signal number being handled. Unused.
  */
@@ -550,6 +550,7 @@ int main(const int argc, char *const argv[])
      * later, there is no need to install the signal handlers any
      * earlier.
      */
+    signal(SIGHUP,  handle_signal_global_abort);
     signal(SIGINT,  handle_signal_global_abort);
     signal(SIGTERM, handle_signal_global_abort);
 
