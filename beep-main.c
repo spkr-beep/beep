@@ -148,9 +148,9 @@ volatile sig_atomic_t global_abort = false;
  * @param unused_signum The signal number being handled. Unused.
  */
 
-void handle_signal(int unused_signum UNUSED_PARAM);
+void handle_signal_global_abort(int unused_signum UNUSED_PARAM);
 
-void handle_signal(int unused_signum UNUSED_PARAM)
+void handle_signal_global_abort(int unused_signum UNUSED_PARAM)
 {
     global_abort = true;
 }
@@ -550,8 +550,8 @@ int main(const int argc, char *const argv[])
      * later, there is no need to install the signal handlers any
      * earlier.
      */
-    signal(SIGINT,  handle_signal);
-    signal(SIGTERM, handle_signal);
+    signal(SIGINT,  handle_signal_global_abort);
+    signal(SIGTERM, handle_signal_global_abort);
 
     /* This outermost while loop handles the possibility that -n/--new
      * has been used, i.e. that we have a sequence of multiple beeps
