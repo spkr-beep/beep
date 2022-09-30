@@ -57,8 +57,12 @@ AC_CHECK_HEADERS(m4_flatten([
   stdint.h
   stdlib.h
   string.h
+  sys/epoll.h
   sys/ioctl.h
+  sys/signalfd.h
+  sys/stat.h
   sys/time.h
+  sys/timerfd.h
   unistd.h
 ]))
 

@@ -40,7 +40,6 @@
 #include <fcntl.h>
 #include <getopt.h>
 #include <limits.h>
-#include <signal.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -57,6 +56,7 @@
 #include "beep-config.h"
 #include "beep-compiler.h"
 #include "beep-drivers.h"
+#include "beep-event-loop.h"
 #include "beep-library.h"
 #include "beep-log.h"
 #include "beep-types.h"
@@ -76,85 +76,6 @@ const char version_message[] =
     "Copyright (C) 2013-2022 Hans Ulrich Niedermann\n"
     "Use and Distribution subject to GPL.\n"
     "For information: http://www.gnu.org/copyleft/.\n";
-
-
-/**
- * Per note parameter set.
- */
-typedef struct beep_parms_T beep_parms_T;
-
-
-/* The default values are defined in beep-config.h */
-
-
-/**
- * Per note parameter set (including heritage information and linked list pointer).
- */
-struct beep_parms_T
-{
-    unsigned int freq;       /**< tone frequency (Hz)         */
-    unsigned int length;     /**< tone length    (ms)         */
-    unsigned int reps;       /**< number of repetitions       */
-    unsigned int delay;      /**< delay between reps  (ms)    */
-    end_delay_E  end_delay;  /**< do we delay after last rep? */
-
-    /** Are we using stdin triggers?
-     *
-     * We have three options:
-     *   - just beep and terminate (default)
-     *   - beep after a line of input
-     *   - beep after a character of input
-     * In the latter two cases, pass the text back out again,
-     * so that beep can be tucked appropriately into a text-
-     * processing pipe.
-     */
-    stdin_beep_E stdin_beep;
-
-    beep_parms_T *next;      /**< in case -n/--new is used. */
-};
-
-
-/**
- * Global flag for signalling program abort due to signal handlers.
- *
- * Initialized as false. Written only by the signal handlers (set to
- * true), read only by the main thread.
- */
-static
-volatile sig_atomic_t global_abort = false;
-
-
-/**
- * Signal handler for signals like SIGHUP, SIGINT and SIGTERM.
- *
- * If we get terminated in any way, it would be nice to not leave the
- * speaker beeping in perpetuity.
- *
- * Everything called from this signal handler must be thread-safe,
- * signal-safe, reentrant including all API functions.  Otherwise, we
- * get another CVE-2018-0492.
- *
- * So we make certain we keep to using the following API calls:
- *
- *   * close(2):      safe
- *   * _exit(2):      safe (which exit(3) is NOT)
- *   * bzero(3):      MT-safe
- *   * memset(3):     MT-safe
- *   * write(2):      safe
- *   * strerror_r(3): MT-safe
- *   * strlen(3):     MT-safe
- *
- * Just setting a global flag of type sig_atomic_t is MT-safe.
- *
- * @param unused_signum The signal number being handled. Unused.
- */
-
-void handle_signal_global_abort(int unused_signum UNUSED_PARAM);
-
-void handle_signal_global_abort(int unused_signum UNUSED_PARAM)
-{
-    global_abort = true;
-}
 
 
 /**
@@ -358,68 +279,6 @@ void parse_command_line(const int argc, char *const argv[], beep_parms_T *result
 
 
 /**
- * Sleep for a number of milliseconds.
- *
- * @param driver       The driver to close in case of #global_abort.
- * @param milliseconds The number of milliseconds to sleep.
- *
- * @return The nanosleep(2) result (0 if successful, -1 on signal handler or error)
- */
-
-static
-int sleep_ms(beep_driver *driver, unsigned int milliseconds)
-    __attribute__(( nonnull(1) ));
-
-static
-int sleep_ms(beep_driver *driver, unsigned int milliseconds)
-{
-    const time_t seconds = milliseconds / 1000U;
-    const long   nanoseconds = (milliseconds % 1000UL) * 1000UL * 1000UL;
-    const struct timespec request =
-        { seconds,
-          nanoseconds };
-    const int retcode = nanosleep(&request, NULL);
-    if (global_abort) {
-        beep_drivers_end_tone(driver);
-        beep_drivers_fini(driver);
-        exit(EXIT_FAILURE);
-    }
-    return retcode;
-}
-
-
-/**
- * Play one (possibly repeated) note.
- *
- * @param driver The driver to run the note on.
- * @param parms  The note parameters.
- */
-
-static
-void play_beep(beep_driver *driver, beep_parms_T parms)
-    __attribute__(( nonnull(1) ));
-
-static
-void play_beep(beep_driver *driver, beep_parms_T parms)
-{
-    LOG_VERBOSE("%d times %d ms beeps (%d ms delay between, "
-                "%d ms delay after) @ %d Hz",
-                parms.reps, parms.length, parms.delay, parms.end_delay,
-                parms.freq);
-
-    /* repeat the beep */
-    for (unsigned int i = 0; (!global_abort) && (i < parms.reps); i++) {
-        beep_drivers_begin_tone(driver, parms.freq & 0xffff);
-        sleep_ms(driver, parms.length);
-        beep_drivers_end_tone(driver);
-        if ((parms.end_delay == END_DELAY_YES) || ((i+1) < parms.reps)) {
-            sleep_ms(driver, parms.delay);
-        }
-    }
-}
-
-
-/**
  * If stdout is a TTY, print a bell character to stdout as a fallback.
  */
 static
@@ -536,76 +395,7 @@ int main(const int argc, char *const argv[])
      * not have to fall back onto printing '\a' any more.
      */
 
-    /* Memory barrier. All globals have been set up, so we make sure the
-     * values are actually written to memory.  Only then do we install
-     * the signal handlers.
-     *
-     * TBD: Use C11 atomic_signal_fence() instead of "__asm__ volatile"?
-     */
-    __asm__ volatile ("" : : : "memory");
-
-    /* After all the initialization has happened and the global
-     * variables used to communicate with the signal handlers have
-     * actually been set up properly, we can finally install the
-     * signal handlers. As we do not start making any noises until
-     * later, there is no need to install the signal handlers any
-     * earlier.
-     */
-    signal(SIGHUP,  handle_signal_global_abort);
-    signal(SIGINT,  handle_signal_global_abort);
-    signal(SIGTERM, handle_signal_global_abort);
-
-    /* This outermost while loop handles the possibility that -n/--new
-     * has been used, i.e. that we have a sequence of multiple beeps
-     * specified.  Each loop iteration will play, then free() one parms
-     * instance.
-     */
-    while ((!global_abort) && parms) {
-        beep_parms_T *next = parms->next;
-
-        if (parms->stdin_beep != STDIN_BEEP_NONE) {
-            /* In this case, beep is probably part of a pipe, in which
-               case POSIX says stdin and out should be fully buffered.
-               This however means very laggy performance with beep
-               just twiddling it's thumbs until a buffer fills. Thus,
-               kill the buffering.  In some situations, this too won't
-               be enough, namely if we're in the middle of a long
-               pipe, and the processes feeding us stdin are buffered,
-               we'll have to wait for them, not much to be done about
-               that. */
-            setvbuf(stdin,  NULL, _IONBF, 0);
-            setvbuf(stdout, NULL, _IONBF, 0);
-
-            char sin[4096];
-            while ((!global_abort) && (fgets(sin, 4096, stdin))) {
-                if (parms->stdin_beep == STDIN_BEEP_CHAR) {
-                    for (char *ptr=sin; (!global_abort) && (*ptr); ptr++) {
-                        putchar(*ptr);
-                        fflush(stdout);
-                        play_beep(driver, *parms);
-                    }
-                } else { /* STDIN_BEEP_LINE */
-                    fputs(sin, stdout);
-                    play_beep(driver, *parms);
-                }
-            }
-        } else {
-            play_beep(driver, *parms);
-        }
-
-        /* Junk each parms struct after playing it */
-        free(parms);
-        parms = next;
-    }
-
-    beep_drivers_end_tone(driver);
-    beep_drivers_fini(driver);
-
-    if (global_abort) {
-        return EXIT_FAILURE;
-    } else {
-        return EXIT_SUCCESS;
-    }
+    return main_event_loop(driver, parms);
 }
 
 
