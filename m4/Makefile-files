@@ -1,0 +1,4 @@
+# -*- makefile-automake -*-
+
+EXTRA_DIST += %reldir%/sb-prog.m4
+EXTRA_DIST += %reldir%/sb-summary.m4

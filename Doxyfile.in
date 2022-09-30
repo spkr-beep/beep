@@ -1,4 +1,5 @@
 # Doxyfile 1.9.1
+# @configure_input@
 
 # This file describes the settings to be used by the documentation system
 # doxygen (www.doxygen.org) for a project.
@@ -864,7 +865,7 @@ WARN_LOGFILE           =
 # spaces. See also FILE_PATTERNS and EXTENSION_MAPPING
 # Note: If this tag is empty the current directory is searched.
 
-INPUT                  = .
+INPUT                  = @abs_top_srcdir@
 
 # This tag can be used to specify the character encoding of the source files
 # that doxygen parses. Internally doxygen uses the UTF-8 encoding. Doxygen uses
@@ -952,7 +953,6 @@ RECURSIVE              = NO
 # run.
 
 EXCLUDE                =
-EXCLUDE                += README.md
 
 # The EXCLUDE_SYMLINKS tag can be used to select whether or not files or
 # directories that are symbolic links (a Unix file system feature) are excluded
@@ -970,6 +970,12 @@ EXCLUDE_SYMLINKS       = NO
 
 EXCLUDE_PATTERNS       =
 EXCLUDE_PATTERNS      += *-usage.c
+
+# TODO: Make *.md file links work with both github.com and Doxygen.
+EXCLUDE_PATTERNS      += INSTALL.md
+EXCLUDE_PATTERNS      += PACKAGING.md
+EXCLUDE_PATTERNS      += PERMISSIONS.md
+EXCLUDE_PATTERNS      += README.md
 
 # The EXCLUDE_SYMBOLS tag can be used to specify one or more symbol names
 # (namespaces, classes, functions, etc.) that should be excluded from the

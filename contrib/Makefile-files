@@ -1,0 +1,7 @@
+# -*- makefile-automake -*-
+
+EXTRA_DIST      += %reldir%/failure-beeps
+contrib_SCRIPTS += %reldir%/failure-beeps
+
+EXTRA_DIST      += %reldir%/success-beeps
+contrib_SCRIPTS += %reldir%/success-beeps
