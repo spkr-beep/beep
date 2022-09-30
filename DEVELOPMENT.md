@@ -20,8 +20,8 @@ clang, run
 ```
 
 
-APIs
-====
+Speaker APIs
+============
 
 evdev API
 ---------
@@ -49,8 +49,8 @@ Fallback TTY BEL API
 --------------------
 
 If you print a ``'\a'`` (`BEL`) character to a TTY device stdout, that
-can sound some type of beep. Not with the desired frequency or
-duration or sequence, but at least there is a beep.
+can sound some type of beep. Probably not with the desired frequency
+or duration or sequence, but at least there is some beep.
 
 
 Raspberry Pi
@@ -108,8 +108,8 @@ Options:
         uinput device.
 
 
-Architecture
-============
+Architecture and language features
+==================================
 
   * We use `__attribute__((constructor))` for some initialization in
     the respective `beep-driver-*.c` and `beep-log.c`.
@@ -119,6 +119,10 @@ Architecture
     keep the flexibility of supporting more than one API for one
     executable.
 
+  * At this time, we write C99 code with some extensions (-std=gnu99
+    works for all compilation units, and -std=c99 for most of them,
+    for both clang and gcc).
+
 
 TODO list
 =========
@@ -126,7 +130,7 @@ TODO list
 Post-1.4.0:
 
   * TODO: Go through all github.com forks of johnath/beep
-  * TODO: Read up on signal(2).
+  * TODO: Read up on signal(2) and sigaction(2)
   * TODO: Implement the uinput based beep-daemon for Raspberry Pi.
 
 
