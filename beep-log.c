@@ -64,7 +64,16 @@ void log_internal_vf(const char *const module, const char *levelstr,
     } else {
         fprintf(stdout, "%s: %s: ", progname, levelstr);
     }
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wformat-nonliteral"
+#else /* to clang or not to clang */
+#endif
     vfprintf(stdout, format, copied_args);
+#ifdef __clang__
+#pragma clang diagnostic pop
+#else /* to clang or not to clang */
+#endif
     fputc('\n', stdout);
 
     va_end(copied_args);

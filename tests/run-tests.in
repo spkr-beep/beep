@@ -1,7 +1,9 @@
-#!/bin/bash
+#!@BASH@
+# @configure_input@
 #
 # run-tests - run a given series of test cases for beep
 # Copyright (C) 2018-2019 Hans Ulrich Niedermann
+# Copyright (C) 2022 Hans Ulrich Niedermann
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -17,10 +19,10 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-CMP=cmp
-DIFF=diff
-SED=sed
-SHELL=sh
+CMP="${CMP-cmp}"
+DIFF="${DIFF-@DIFF@}"
+SED="${SED-sed}"
+TPUT="${TPUT-@TPUT@}"
 
 # TODO: If we have more tone generating tests, find a well-known
 #       melody without repeating notes and play that melody so that a
@@ -30,22 +32,23 @@ FREQS=(440 494 554 587 659 740 831 880 988 1109 1175 1319 1480 1661 1760)
 : set -e
 : set -x
 
-test_dir="$1"
-shift
-BEEP="$1"
-shift
+BEEP="${BEEP-@BEEP@}"
 export BEEP
+
+PACKAGE_VERSION="${PACKAGE_VERSION-@PACKAGE_VERSION@}"
+test_src_dir="${srcdir-@srcdir@}/tests"
+test_dst_dir="${builddir-@builddir@}/tests"
 
 skip=0
 pass=0
 fail=0
 
 if test -t 1; then
-    hilite="$(tput setaf 3)"
-    normal="$(tput sgr0)"
-    green="$(tput setaf 2)"
-    blue="$(tput setaf 4)"
-    red="$(tput setaf 1)$(tput bold)"
+    hilite="$(${TPUT} setaf 3)"
+    normal="$(${TPUT} sgr0)"
+    green="$(${TPUT} setaf 2)"
+    blue="$(${TPUT} setaf 4)"
+    red="$(${TPUT} setaf 1)$(${TPUT} bold)"
 else
     hilite=""
     normal=""
@@ -89,11 +92,10 @@ fi
 
 if true; then
     freq_idx=0
-    for test in $(ls -1 "${test_dir}/"*.{bash,sh}); do
+    for test in $(ls -1 "${test_src_dir}/"*.{bash,sh}); do
 	export FREQ="${FREQS[${freq_idx}]}"
 	base="$(basename $(basename "$test" .bash) .sh)"
-	dir="$(dirname "$test")"
-	actual="${dir}/${base}.actual"
+	actual="${test_dst_dir}/${base}.actual"
 	printf "${hilite}%-32s${normal} " "${base}"
 	if "$have_no_hardware" && grep "^: REQUIRES_HARDWARE" "$test" > /dev/null; then
 	    skip="$(expr "${skip}" + 1)"
@@ -101,7 +103,7 @@ if true; then
 	elif "${test}" > "${actual}.new" 2>&1; then
 	    canonicalize_output < "${actual}.new" > "${actual}"
 	    expects_output=false
-	    for file in "${dir}/${base}.expected".[0-9]; do
+	    for file in "${test_src_dir}/${base}.expected".[0-9]; do
 		if test -f "$file"; then
 		    expects_output=true
 		    break
@@ -109,7 +111,7 @@ if true; then
 	    done
 	    if "${expects_output}"; then
 		expect_fail="true"
-		for expected in "${dir}/${base}.expected".[0-9]; do
+		for expected in "${test_src_dir}/${base}.expected".[0-9]; do
 		    if ${CMP} --quiet "${expected}" "${actual}"; then
 			pass="$(expr "${pass}" + 1)"
 			echo "${passmsg}${expected/#*expected}"
@@ -120,7 +122,7 @@ if true; then
 		if "$expect_fail"; then
 		    fail="$(expr "${fail}" + 1)"
 		    echo "${failmsg}"
-		    for expected in "${dir}/${base}.expected".[0-9]; do
+		    for expected in "${test_src_dir}/${base}.expected".[0-9]; do
 			${DIFF} -u "${expected}" "${actual}"
 		    done
 		fi
