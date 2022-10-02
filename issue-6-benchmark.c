@@ -553,9 +553,9 @@ int benchmark_and_report(const char *const argv0,
 {
     printf("Running benchmark(s). This will literally take a minute or two.\n\n");
 
-    printf("For reproducible results, make sure the CPU load very close to 0,\n"
-           "that there is a sufficient amount of available RAM, and there is\n"
-           "no heavy I/O load. Stopping web browsers running Javascript might help.\n\n");
+    printf("For the most accurate and reproducible results, make sure the system is\n"
+           "not very busy (low CPU load, sufficient memory available, and no heavy\n"
+           "I/O). Stopping web browsers running Javascript might help.\n\n");
 
     printf("Beginning with a quick test run to dimension the actual benchmark:\n");
 
