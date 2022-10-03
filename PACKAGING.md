@@ -12,15 +12,14 @@ also be interesting.
 Building and installing
 -----------------------
 
-The building and installing during a package build can be achieved with
+The building and installing during a package build can be achieved as
+for every other automake based package, i.e. with
 
 ```sh
+./configure --prefix=...
 make
-make install-nobuild DESTDIR=/path/to/package-root
+make install DESTDIR=/path/to/package-root
 ```
-
-While not strictly necessary, using `make install-nobuild` makes sure
-that no compilation happens during the installation phase.
 
 You can also add to the default compiler flags by setting or adding to
 `CFLAGS`, `CPPFLAGS`, `LDFLAGS`, and `LDADD`, by running `make` like
@@ -30,13 +29,13 @@ e.g.
 make CFLAGS="-O -g -flto=auto -ffat-lto-objects" CPPFLAGS="-I/opt/include" LDFLAGS="-f" LDADD="-L/opt/lib -lmoo"
 ```
 
-or putting those definitions into the `local.mk` file.
-
 The buildsystem will use whatever compiler `CC` is set to. `clang` and
 `gcc` are known to work, other toolchains might.
 
 ```sh
-make CC=clang
+./configure CC=clang
+make
+make install
 ```
 
 If your package build has `pandoc` available and working, HTML files
@@ -44,39 +43,14 @@ will be built from the markdown files and installed later. If you do
 not want HTML files built and installed, you can set `PANDOC=false`.
 
 If you need to set any of the `*dir` variables like `prefix` or
-`docdir` on the `make` command line, you need to set them for both the
-build step (`make`) and for the install step (`make install`).  You
-might either give the very same command line for every invocation of
-`make`, or you can write those definitions into a make include file
-called `local.mk` once. For example, you might want to achieve the
-effect of
+`docdir`, set them with `configure --prefix=...` or `configure
+--docdir=...` so that the same values are available both for the build
+(`make`) and for the install (`make install`) step.
 
-```sh
-make prefix='/usr' docdir='$(docdir)/$(PACKAGE_TARNAME)-$(PACKAGE_VERSION)'
-make prefix='/usr' docdir='$(docdir)/$(PACKAGE_TARNAME)-$(PACKAGE_VERSION)' DESTDIR=/path/to/package-root install
-```
+Every distribution should contain examples of how to build automake
+based packages by invoking `configure`, `make`, and `make install`
+with the appropriate parameters and environment variables.
 
-by creating a `local.mk` which might look as follows in e.g. an RPM
-spec file:
-
-```sh
-cat>local.mk<<EOF
-prefix = %{_prefix}
-docdir = %{_pkgdocdir}
-EOF
-make
-make install DESTDIR='%{buildroot}'
-```
-
-or in a Debian `debian/rules.mk` file (something along these lines,
-untested):
-
-```
-override_dh_auto_configure:
-	echo 'CC = $(CC)' > local.mk
-	echo 'prefix = /usr' >> local.mk
-	echo 'CFLAGS = $(shell dpkg-buildflags --get CFLAGS)' >> local.mk
-```
 
 Files to install for beep
 -------------------------

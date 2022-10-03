@@ -44,6 +44,42 @@ typedef enum {
 } stdin_beep_E;
 
 
+/**
+ * Per note parameter set.
+ */
+typedef struct beep_parms_T beep_parms_T;
+
+
+/* The default values are defined in beep-config.h */
+
+
+/**
+ * Per note parameter set (including heritage information and linked list pointer).
+ */
+struct beep_parms_T
+{
+    unsigned int freq;       /**< tone frequency (Hz)         */
+    unsigned int length;     /**< tone length    (ms)         */
+    unsigned int reps;       /**< number of repetitions       */
+    unsigned int delay;      /**< delay between reps  (ms)    */
+    end_delay_E  end_delay;  /**< do we delay after last rep? */
+
+    /** Are we using stdin triggers?
+     *
+     * We have three options:
+     *   - just beep and terminate (default)
+     *   - beep after a line of input
+     *   - beep after a character of input
+     * In the latter two cases, pass the text back out again,
+     * so that beep can be tucked appropriately into a text-
+     * processing pipe.
+     */
+    stdin_beep_E stdin_beep;
+
+    beep_parms_T *next;      /**< in case -n/--new is used. */
+};
+
+
 #endif /* !defined(BEEP_TYPES_H) */
 
 

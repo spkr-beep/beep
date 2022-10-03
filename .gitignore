@@ -1,5 +1,21 @@
 # Files that should not be tracked by Git
 
+# autoreconf
+Makefile.in
+/aclocal.m4
+/auto-aux/
+/auto-config.h.in
+/autom4te.cache/
+/configure
+
+# configure
+.deps/
+Makefile
+/auto-config.h
+/config.log
+/config.status
+/stamp-h1
+
 # The compiled executables
 /beep
 /*.clang
@@ -37,6 +53,7 @@
 /tarball-git-dist/
 /beep-*.tar.gz
 /beep-*.tar.xz
+/tests/run-tests
 
 # Test results
 /tests/*.actual.output.new

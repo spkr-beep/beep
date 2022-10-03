@@ -1,4 +1,5 @@
 .\" The beep(1) man page
+.\" @configure_input@
 .\"
 .\" This man page has been rewritten adhering to the following
 .\" documentation: man(7), man-pages(7), tbl(1)
