@@ -129,7 +129,7 @@ void driver_begin_tone(beep_driver *driver, const uint16_t freq)
 
     if (sizeof(e) != write(driver->device_fd, &e, sizeof(e))) {
         /* If we cannot use the sound API, we cannot silence the sound either */
-        safe_error_exit("write EV_SND");
+        safe_errno_exit("write EV_SND");
     }
 }
 
@@ -147,7 +147,7 @@ void driver_end_tone(beep_driver *driver)
     e.value = 0;
 
     if (sizeof(e) != write(driver->device_fd, &e, sizeof(e))) {
-        safe_error_exit("write EV_SND");
+        safe_errno_exit("write EV_SND");
     }
 }
 

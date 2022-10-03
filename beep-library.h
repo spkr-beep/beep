@@ -41,13 +41,13 @@ int open_checked_char_device(const char *const device_name)
 
 
 /**
- * Safely exit the program with error message.
+ * Safely exit the program with errno error message.
  *
  * The "safety" aspect refers to multithreading/signals/etc.
  *
  * @param msg The message to print before exiting.
  */
-void safe_error_exit(const char *const msg)
+void safe_errno_exit(const char *const msg)
     __attribute__(( nonnull(1) ))
     __attribute__(( noreturn ));
 

@@ -86,7 +86,7 @@ int open_checked_char_device(const char *const device_name)
  * global variables or malloc(3)/free(3) inside its code, so we use
  * strerror_r(3) and write(2) to STDERR_FILENO instead.
  */
-void safe_error_exit(const char *const msg)
+void safe_errno_exit(const char *const msg)
 {
     const int saved_errno = errno;
     char strerr_buf[128];
