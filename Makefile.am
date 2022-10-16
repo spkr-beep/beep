@@ -146,7 +146,7 @@ CLEANFILES    += Doxyfile
 Doxyfile: Doxyfile.in Makefile
 	$(SED) $(REPLACEMENTS) < $< > $@
 
-if HAVE_TOOL_DOXYGEN
+if HAVE_TOOL_VERSION_DOXYGEN
 CLEANFILES += doxygen.stamp
 doxygen.stamp: Doxyfile $(BUILT_SOURCES) $(beep_SOURCES)
 	$(DOXYGEN) $<

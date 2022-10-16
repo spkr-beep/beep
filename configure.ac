@@ -37,10 +37,11 @@ dnl and /bin/bash
 
 SB_PROG([BASH],     [bash])
 SB_PROG([DIFF],     [diff])
-SB_PROG([DOXYGEN],  [doxygen])
 SB_PROG([PANDOC],   [pandoc])
 SB_PROG([PYTHON3],  [python3])
 SB_PROG([TPUT],     [tput])
+
+SB_PROG_DOXYGEN([1.9.5])
 
 # TODO: Use the proper C standard for compiling.
 # TODO: Produce as many warnings and errors as possible when compiling.
