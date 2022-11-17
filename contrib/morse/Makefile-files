@@ -1,0 +1,7 @@
+# -*- makefile-automake -*-
+
+EXTRA_DIST      += %reldir%/morse2beep.pl
+contrib_SCRIPTS += %reldir%/morse2beep.pl
+
+EXTRA_DIST      += %reldir%/morse2beep.sed
+contrib_SCRIPTS += %reldir%/morse2beep.sed

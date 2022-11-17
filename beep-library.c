@@ -90,6 +90,8 @@ void safe_errno_exit(const char *const msg)
 {
     const int saved_errno = errno;
     char strerr_buf[128];
+#if (defined(_POSIX_C_SOURCE) && (_POSIX_C_SOURCE >= 200112L) && !defined(_GNU_SOURCE))
+    /* XSI compliant int strerror_r(int errnum, char *buf, size_t buflen); */
     const int ret = strerror_r(saved_errno, strerr_buf, sizeof(strerr_buf));
     if (ret != 0) {
         if (write(STDERR_FILENO, "strerror_r error\n",
@@ -98,6 +100,12 @@ void safe_errno_exit(const char *const msg)
         }
         _exit(EXIT_FAILURE);
     }
+    const char *const error_string = strerr_buf;
+#else
+    /* GNU-specific char *strerror_r(int errnum, char *buf, size_t buflen); */
+    const char *const error_string =
+        strerror_r(saved_errno, strerr_buf, sizeof(strerr_buf));
+#endif
     const size_t msglen = strlen(msg);
     if (write(STDERR_FILENO, msg, msglen)) {
         /* ignore all write errors */
@@ -105,8 +113,8 @@ void safe_errno_exit(const char *const msg)
     if (write(STDERR_FILENO, ": ", 2)) {
         /* ignore all write errors */
     }
-    const size_t errlen = strlen(strerr_buf);
-    if (write(STDERR_FILENO, strerr_buf, errlen)) {
+    const size_t errlen = strlen(error_string);
+    if (write(STDERR_FILENO, error_string, errlen)) {
         /* ignore all write errors */
     }
     if (write(STDERR_FILENO, "\n", 1)) {

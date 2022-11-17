@@ -6,6 +6,10 @@ The big and user visible changes.
 1.4.xx
 ------
   * Silence the speaker on SIGHUP (like we do on SIGINT, SIGTERM)
+  * Changed buildsystem to Automake from proprietary GNUmakefile.
+    This is primarily to reduce the effort for maintenance and
+    packaging. Building beep with both clang *and* gcc is still
+    available for developers through the `testbuild-all` script.
 
 1.4.12
 ------

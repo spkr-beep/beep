@@ -1,0 +1,81 @@
+# -*- makefile-automake -*-
+
+TESTS_ENVIRONMENT = env
+TESTS_ENVIRONMENT += BEEP=./beep
+
+if HAVE_TOOL_BASH
+if HAVE_TOOL_TPUT
+EXTRA_DIST += %reldir%/run-tests.in
+CLEANFILES += %reldir%/run-tests
+TESTS      += %reldir%/run-tests
+%reldir%/run-tests: %reldir%/run-tests.in Makefile
+	$(MKDIR_P) %reldir%
+	$(SED) $(REPLACEMENTS) < $< > $@
+	chmod +x $@
+endif
+endif
+
+clean-local:
+	rm -f %reldir%/*.actual
+	rm -f %reldir%/*.actual.new
+
+EXTRA_DIST += %reldir%/00-nothing.expected.0
+EXTRA_DIST += %reldir%/00-nothing.sh
+EXTRA_DIST += %reldir%/01-nothing.sh
+EXTRA_DIST += %reldir%/02-second-device-name.expected.0
+EXTRA_DIST += %reldir%/02-second-device-name.sh
+EXTRA_DIST += %reldir%/03-cmdline-unhandled-option.expected.0
+EXTRA_DIST += %reldir%/03-cmdline-unhandled-option.sh
+EXTRA_DIST += %reldir%/04-cmdline-unhandled-non-option.sh
+EXTRA_DIST += %reldir%/05-cmdline-help.bash
+EXTRA_DIST += %reldir%/05-cmdline-help.expected.0
+EXTRA_DIST += %reldir%/05-cmdline-version.bash
+EXTRA_DIST += %reldir%/05-cmdline-version.expected.0
+EXTRA_DIST += %reldir%/10-beep-default.sh
+EXTRA_DIST += %reldir%/11-beep-default-logs.expected.0
+EXTRA_DIST += %reldir%/11-beep-default-logs.expected.1
+EXTRA_DIST += %reldir%/11-beep-default-logs.sh
+EXTRA_DIST += %reldir%/11-beep-f-880Hz.sh
+EXTRA_DIST += %reldir%/20-beep-default.sh
+EXTRA_DIST += %reldir%/20-beep-device-dev-evdev-pcspkr.sh
+EXTRA_DIST += %reldir%/21-beep-device-dev-console.expected.0
+EXTRA_DIST += %reldir%/21-beep-device-dev-console.expected.1
+EXTRA_DIST += %reldir%/21-beep-device-dev-console.sh
+EXTRA_DIST += %reldir%/30-beep-device-dev-tty0.expected.0
+EXTRA_DIST += %reldir%/30-beep-device-dev-tty0.expected.1
+EXTRA_DIST += %reldir%/30-beep-device-dev-tty0.sh
+EXTRA_DIST += %reldir%/31-beep-device-dev-tty4.expected.0
+EXTRA_DIST += %reldir%/31-beep-device-dev-tty4.expected.1
+EXTRA_DIST += %reldir%/31-beep-device-dev-tty4.expected.2
+EXTRA_DIST += %reldir%/31-beep-device-dev-tty4.expected.3
+EXTRA_DIST += %reldir%/31-beep-device-dev-tty4.sh
+EXTRA_DIST += %reldir%/33-beep-device-dev-tty63.expected.0
+EXTRA_DIST += %reldir%/33-beep-device-dev-tty63.expected.1
+EXTRA_DIST += %reldir%/33-beep-device-dev-tty63.sh
+EXTRA_DIST += %reldir%/34-beep-device-dev-ttyXX.expected.0
+EXTRA_DIST += %reldir%/34-beep-device-dev-ttyXX.sh
+EXTRA_DIST += %reldir%/35-beep-device-dev-tty99.expected.0
+EXTRA_DIST += %reldir%/35-beep-device-dev-tty99.sh
+EXTRA_DIST += %reldir%/36-beep-device-dev-ttyX.expected.0
+EXTRA_DIST += %reldir%/36-beep-device-dev-ttyX.sh
+EXTRA_DIST += %reldir%/37-beep-device-dev-ttyS1.expected.0
+EXTRA_DIST += %reldir%/37-beep-device-dev-ttyS1.expected.1
+EXTRA_DIST += %reldir%/37-beep-device-dev-ttyS1.sh
+EXTRA_DIST += %reldir%/38-beep-device-dev-tty999.expected.0
+EXTRA_DIST += %reldir%/38-beep-device-dev-tty999.sh
+EXTRA_DIST += %reldir%/40-beep-device-dev-vc-0.expected.0
+EXTRA_DIST += %reldir%/40-beep-device-dev-vc-0.sh
+EXTRA_DIST += %reldir%/50-long-len-and-signal-SIGINT.expected.0
+EXTRA_DIST += %reldir%/50-long-len-and-signal-SIGINT.sh
+EXTRA_DIST += %reldir%/50-long-len-and-signal-SIGTERM.expected.0
+EXTRA_DIST += %reldir%/50-long-len-and-signal-SIGTERM.sh
+EXTRA_DIST += %reldir%/51-long-delay-and-signal-SIGINT.expected.0
+EXTRA_DIST += %reldir%/51-long-delay-and-signal-SIGINT.sh
+EXTRA_DIST += %reldir%/60-beep-from-stdin.expected.0
+EXTRA_DIST += %reldir%/60-beep-from-stdin.sh
+EXTRA_DIST += %reldir%/61-beep-from-stdin.expected.0
+EXTRA_DIST += %reldir%/61-beep-from-stdin.sh
+EXTRA_DIST += %reldir%/62-beep-from-stdin.expected.0
+EXTRA_DIST += %reldir%/62-beep-from-stdin.sh
+EXTRA_DIST += %reldir%/63-beep-from-stdin.expected.0
+EXTRA_DIST += %reldir%/63-beep-from-stdin.sh

@@ -52,6 +52,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
+#include "auto-config.h"
 
 #include "beep-config.h"
 #include "beep-compiler.h"
