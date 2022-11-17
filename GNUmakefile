@@ -173,7 +173,7 @@ common_CFLAGS   += -pedantic
 $(eval $(call check-cflags,common_CFLAGS,-Werror=unknown-warning-option))
 $(eval $(call check-cflags,common_CFLAGS,-Wall))
 $(eval $(call check-cflags,common_CFLAGS,-Wextra))
-$(eval $(call check-cflags,common_CFLAGS,-Weverything))
+$(eval $(call check-cflags,common_CFLAGS,-Wmost))
 $(eval $(call check-cflags,common_CFLAGS,-Werror))
 $(eval $(call check-cflags,common_CFLAGS,-Wno-padded))
 $(eval $(call check-cflags,common_CFLAGS,-Werror=format-security))
