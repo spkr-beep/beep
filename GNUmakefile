@@ -144,6 +144,9 @@ doc_DATA         =
 # Define compiler and linker flags
 ########################################################################
 
+CLEANFILES   += conftest-program.o
+EXTRA_DIST   += conftest-program.c
+
 comma := ,
 
 # If supported by $(CC), add given flags to CFLAGS type variable.
@@ -168,7 +171,9 @@ common_LDADD     =
 common_CPPFLAGS += -DPACKAGE_TARNAME='"$(PACKAGE_TARNAME)"'
 common_CPPFLAGS += -DPACKAGE_VERSION='"$(PACKAGE_VERSION)"'
 common_CFLAGS   += -std=gnu99
+ifeq (yes,$(shell if $(CC) -Wall -Wextra -Werror -Wa$(comma)-adhlns=conftest-program.lst -o conftest-program.o -c conftest-program.c 2>/dev/null; then echo yes; else echo no; fi))
 common_CFLAGS   += $(if $(filter %.o,$@),-Wa$(comma)-adhlns=$(@:.o=.lst))
+endif
 common_CFLAGS   += -pedantic
 $(eval $(call check-cflags,common_CFLAGS,-Werror=unknown-warning-option))
 $(eval $(call check-cflags,common_CFLAGS,-Wall))
