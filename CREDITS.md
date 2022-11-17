@@ -1,3 +1,6 @@
+# Credits
+
+Credit where credit is due.
 
 > I (Johnathan Nightingale) handled the original coding, distribution,
 > maintenance, etc.
