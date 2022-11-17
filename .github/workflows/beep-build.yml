@@ -26,7 +26,7 @@ jobs:
     - name: configure
       run: ./configure --prefix="${PWD}/_root"
     - name: make
-      run: N="$(nproc||echo 2)"; make -j$N -l$N CFLAGS="-std=gnu11 -pedantic -Wall -Wextra -Werror"
+      run: N="$(nproc||echo 2)"; make -j$N -l$N
     - name: 'beep --help'
       run: |
         ./beep --help > beep-usage.from--help
