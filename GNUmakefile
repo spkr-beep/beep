@@ -176,6 +176,7 @@ common_CFLAGS   += $(if $(filter %.o,$@),-Wa$(comma)-adhlns=$(@:.o=.lst))
 endif
 common_CFLAGS   += -pedantic
 $(eval $(call check-cflags,common_CFLAGS,-Werror=unknown-warning-option))
+$(eval $(call check-cflags,common_CFLAGS,-Wno-gnu-line-marker))
 $(eval $(call check-cflags,common_CFLAGS,-Wall))
 $(eval $(call check-cflags,common_CFLAGS,-Wextra))
 $(eval $(call check-cflags,common_CFLAGS,-Wmost))
