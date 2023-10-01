@@ -496,6 +496,7 @@ EXTRA_DIST += testbuild-all
 
 EXTRA_DIST += .gitignore
 EXTRA_DIST += .github/workflows/beep-build.yml
+EXTRA_DIST += .github/workflows/codeql.yml
 
 .PHONY: clean
 clean:
