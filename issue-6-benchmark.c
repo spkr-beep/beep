@@ -782,7 +782,7 @@ int main_argc2(const int argc, const char *const argv[])
     }
 
     const char *const console_device = argv[1];
-    if (*console_device == '\0') {
+    if ((console_device == NULL) || (*console_device == '\0')) {
         fprintf(stderr, "%s: 'device' argument must be non-empty string\n",
                 argv[0]);
         return EXIT_FAILURE;
