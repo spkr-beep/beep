@@ -1,5 +1,5 @@
 /** \file conftest-program.c
- * \brief Simple program for test compilations to check forbuild flags
+ * \brief Simple program for test compilations to check for build flags
  */
 
 #include <stdio.h>
