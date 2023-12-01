@@ -128,7 +128,7 @@ bits in the code had to be changed, a lot of documentation had to be
 changed, and eventually the changes had accumulated to so much that
 the result could not really be called `beep-1.3` any more.
 
-However, with the last repository activity in early 2013, Jonathan's
+However, with the last repository activity in early 2013, Johnathan's
 github beep repository had been basically unmaintained for almost 6 years,
 so Hans Ulrich created https://github.com/spkr-beep/beep/ as a new home
 for beep.  All contributors are welcome there, old and new.
