@@ -116,6 +116,18 @@ alphabetically:
     the old `README` file.
 
 
+Present presence of beep in the Linux distro landscape
+======================================================
+
+The following graphic from repology.org gives an overview of the prevalence
+of beep in the Linux distribution landscape.
+
+More detailed information on miscellaneous distributions' `beep` packages
+can be found at the [repology.org beep page](https://repology.org/project/beep/packages).
+
+[![Packaging status](https://repology.org/badge/vertical-allrepos/beep.svg?columns=4&minversion=1.4.2)](https://repology.org/badge/vertical-allrepos/beep.svg?columns=4&minversion=1.4.2)
+
+
 The history of beep
 ===================
 
