@@ -132,7 +132,7 @@ The history of beep
 ===================
 
 In late 2018, while trying to come up with a fix for CVE-2018-1000532
-for the Fedora package, Hans Ulrich Niedermann had to find find out
+for the Fedora package, Hans Ulrich Niedermann had to find out
 exactly how `beep` works, and found out that the API to use in this
 day and age (the evdev API) was not even in available `beep`'s default
 configuration, or documented with the proper device name.  So a few
