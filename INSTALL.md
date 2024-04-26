@@ -8,6 +8,11 @@ If you are using `beep` as shipped in a binary distribution package,
 that package should have done most of those steps for you.  The one
 notable exception should be the step adding users to the `beep` group.
 
+If this file leaves open an installation question, please file an
+issue at https://github.com/spkr-beep/beep/issues so we can see
+whether we can improve the documentation or the installation procedure
+on the beep side.
+
 
 Build requirements
 ==================

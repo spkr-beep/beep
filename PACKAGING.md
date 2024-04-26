@@ -8,6 +8,10 @@ packaging `beep` for a Linux distribution.
 In addition, to a packager of `beep`, [`INSTALL.md`](INSTALL.md) might
 also be interesting.
 
+If this file leaves open a packaging question, please file an issue at
+https://github.com/spkr-beep/beep/issues so we can see whether we can
+improve the documentation or the packaging procedure on the beep side.
+
 
 Building and installing
 -----------------------
