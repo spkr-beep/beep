@@ -36,17 +36,21 @@ The basic way to build and install beep is
 configuration options last over different make invocations, do
 generate a `local.mk` file containing the appropriate definitions:
 
-The buildsystem will use whatever value `CC` is as a compiler, and use
-a few tools like `PANDOC` for building html from markdown. You can set
-these to your desired values, including `PANDOC=false` to disable
-building and installing html files.
+  * The buildsystem will use whatever value `CC` is as a compiler, and
+    use a few tools like `PANDOC` for building html from markdown. You
+    can set these to your desired values, including `PANDOC=false` to
+    disable building and installing html files.
 
-The installation location will be written into some files during
-`make`, and will then be used during `make install`.  The default
-installation location is `prefix=/usr/local`, with `bindir`, `docdir`,
-`htmldir`, `mandir`, etc. being used for more specialized installation
-directories.  For installing into a chroot environment, the `install`
-target(s) support `DESTDIR=/path/to/chroot`.
+  * The installation location will be written into some files during
+    `make`, and will then be used during `make install`.  The default
+    installation location is `prefix=/usr/local`, with `bindir`,
+    `docdir`, `htmldir`, `mandir`, etc. being used for more
+    specialized installation directories.  For installing into a
+    chroot environment, the `install` target(s) support
+    `DESTDIR=/path/to/chroot`.
+
+  * For changing compilation and linking, define `CPPFLAGS`, `CFLAGS`,
+    `LDADD`, and `LDFLAGS`.
 
 You can override any of these variables from the `make` command line
 like e.g.
