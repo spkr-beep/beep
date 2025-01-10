@@ -319,7 +319,7 @@ $(2)_OBJS := $$(foreach src,$$($(2)_SOURCES),$$(if $$(filter %.c,$$(src)),$$(src
 $(1): $$($(2)_OBJS)
 	$$(inhibit-build-command)
 	@$$(call print-rule-description,LINK,$$@)
-	$$(CC) -Wl,-Map=$(1).map,--cref $$(common_CFLAGS) $$(CFLAGS) $$(common_LDFLAGS) $$($(2)_LDFLAGS) $$(LDFLAGS) -o $$@ $$^ $$(common_LDADD) $$($(2)_LDADD) $$(LDADD)
+	$$(CC) -Wl,-Map=$(1).map $$(common_CFLAGS) $$(CFLAGS) $$(common_LDFLAGS) $$($(2)_LDFLAGS) $$(LDFLAGS) -o $$@ $$^ $$(common_LDADD) $$($(2)_LDADD) $$(LDADD)
 
 $$(patsubst %.o,.deps/%.o.dep,$$($(2)_OBJS))):
 
