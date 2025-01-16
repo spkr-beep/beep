@@ -1,5 +1,5 @@
 /** \file beep-driver.h
- * \brief the interface all beep drivers implement
+ * \brief the interface each beep driver implements
  * \author Copyright (C) 2019 Hans Ulrich Niedermann
  * \author Copyright (C) 2022 Hans Ulrich Niedermann
  *
