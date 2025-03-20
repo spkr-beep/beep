@@ -83,13 +83,18 @@ bool driver_detect(beep_driver *driver, const char *console_device)
         LOG_VERBOSE("driver_detect %p %p",
                     (void *)driver, (const void *)console_device);
         static
-            const char *const default_name =
-            "/dev/input/by-path/platform-pcspkr-event-spkr";
-        const int fd = open_checked_device(default_name);
-        if (fd >= 0) {
-            driver->device_fd = fd;
-            driver->device_name = default_name;
-            return true;
+            const char *const well_known_device_names[] =
+            {
+                "/dev/input/by-path/platform-pcspkr-event-spkr",
+            };
+        for (size_t i=0; i<(sizeof(well_known_device_names)/sizeof(well_known_device_names[0])); ++i) {
+            const char *const device_name = well_known_device_names[i];
+            const int fd = open_checked_device(device_name);
+            if (fd >= 0) {
+                driver->device_fd = fd;
+                driver->device_name = device_name;
+                return true;
+            }
         }
     }
     return false;
