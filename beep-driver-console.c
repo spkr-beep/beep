@@ -76,11 +76,6 @@ bool driver_detect(beep_driver *driver, const char *console_device)
     if (console_device) {
         LOG_VERBOSE("driver_detect %p %s",
                     (void *)driver, console_device);
-    } else {
-        LOG_VERBOSE("driver_detect %p %p",
-                    (void *)driver, (const void *)console_device);
-    }
-    if (console_device) {
         const int fd = open_checked_device(console_device);
         if (fd >= 0) {
             driver->device_fd = fd;
@@ -88,6 +83,9 @@ bool driver_detect(beep_driver *driver, const char *console_device)
             return true;
         }
     } else {
+        LOG_VERBOSE("driver_detect %p %p",
+                    (void *)driver, (const void *)console_device);
+
         /** \todo We could iterate over all `/dev/tty[0-9]+` and
          *        `/dev/vc/[0-9]+` devices until one is a character
          *        device special file which can be `open(2)`ed with
