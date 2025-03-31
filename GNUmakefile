@@ -454,6 +454,8 @@ EXTRA_DIST += PACKAGING.md
 
 EXTRA_DIST      += contrib/failure-beeps
 contrib_SCRIPTS += contrib/failure-beeps
+EXTRA_DIST      += contrib/status-beeps
+contrib_SCRIPTS += contrib/status-beeps
 EXTRA_DIST      += contrib/success-beeps
 contrib_SCRIPTS += contrib/success-beeps
 EXTRA_DIST      += contrib/morse/morse2beep.pl

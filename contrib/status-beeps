@@ -1,0 +1,10 @@
+#!/bin/sh
+# Run command and depending on its exit code, produce success or failure beeps
+
+d="$(cd "$(dirname "$0")" && pwd)"
+
+if "$@"; then
+  "$d/success-beeps"
+else
+  "$d/failure-beeps"
+fi
