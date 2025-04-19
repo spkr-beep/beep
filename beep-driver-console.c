@@ -90,7 +90,7 @@ bool driver_detect(beep_driver *driver, const char *console_device)
          *        `/dev/vc/[0-9]+` devices until one is a character
          *        device special file which can be `open(2)`ed with
          *        `O_WRONLY`. (We already have that code in
-         *        `issue-6-benchmark.c`.)  Is that advisable from a
+         *        `issue-6-bench.c`.)  Is that advisable from a
          *        robustness and/or security point of view?
          */
         static

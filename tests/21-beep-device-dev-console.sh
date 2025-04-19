@@ -1,3 +1,5 @@
+#!/bin/sh
+
 if ${BEEP} -f "$FREQ" -e /dev/console; then
     :
 else

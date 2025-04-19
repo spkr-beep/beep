@@ -1,3 +1,5 @@
+#!/bin/sh
+
 if ${BEEP} blubb > /dev/null; then
     echo "beep should have exited with non-0, but exited with 0"
 else

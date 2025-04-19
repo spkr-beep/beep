@@ -1,3 +1,5 @@
+#!/bin/sh
+
 if ${BEEP} -f "$FREQ" -e /dev/tty4; then
     :
 else

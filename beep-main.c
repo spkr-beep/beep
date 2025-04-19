@@ -80,7 +80,7 @@ const char version_message[] =
 /**
  * Per note parameter set.
  */
-typedef struct beep_parms_T beep_parms_T;
+typedef struct beep_note_T beep_note_T;
 
 
 /* The default values are defined in beep-config.h */
@@ -89,7 +89,7 @@ typedef struct beep_parms_T beep_parms_T;
 /**
  * Per note parameter set (including heritage information and linked list pointer).
  */
-struct beep_parms_T
+struct beep_note_T
 {
     unsigned int freq;       /**< tone frequency (Hz)         */
     unsigned int length;     /**< tone length    (ms)         */
@@ -109,7 +109,7 @@ struct beep_parms_T
      */
     stdin_beep_E stdin_beep;
 
-    beep_parms_T *next;      /**< in case -n/--new is used. */
+    beep_note_T *next;       /**< in case -n/--new is used. */
 };
 
 
@@ -220,11 +220,11 @@ char *param_device_name = NULL;
  * @param result Linked list to be built by parse_command_line().
  */
 static
-void parse_command_line(const int argc, char *const argv[], beep_parms_T *result)
+void parse_command_line(const int argc, char *const argv[], beep_note_T *result)
     __attribute__(( nonnull(3) ));
 
 static
-void parse_command_line(const int argc, char *const argv[], beep_parms_T *result)
+void parse_command_line(const int argc, char *const argv[], beep_note_T *result)
 {
     int ch;
 
@@ -314,7 +314,7 @@ void parse_command_line(const int argc, char *const argv[], beep_parms_T *result
             if (result->freq == 0) {
                 result->freq = DEFAULT_FREQ;
             }
-            result->next = (beep_parms_T *)malloc(sizeof(beep_parms_T));
+            result->next = (beep_note_T *)malloc(sizeof(beep_note_T));
             result->next->freq       = 0;
             result->next->length     = DEFAULT_LENGTH;
             result->next->reps       = DEFAULT_REPS;
@@ -391,28 +391,28 @@ int sleep_ms(beep_driver *driver, unsigned int milliseconds)
  * Play one (possibly repeated) note.
  *
  * @param driver The driver to run the note on.
- * @param parms  The note parameters.
+ * @param note  The note parameters.
  */
 
 static
-void play_beep(beep_driver *driver, beep_parms_T parms)
+void play_note(beep_driver *driver, beep_note_T note)
     __attribute__(( nonnull(1) ));
 
 static
-void play_beep(beep_driver *driver, beep_parms_T parms)
+void play_note(beep_driver *driver, beep_note_T note)
 {
     LOG_VERBOSE("%d times %d ms beeps (%d ms delay between, "
                 "%d ms delay after) @ %d Hz",
-                parms.reps, parms.length, parms.delay, parms.end_delay,
-                parms.freq);
+                note.reps, note.length, note.delay, note.end_delay,
+                note.freq);
 
     /* repeat the beep */
-    for (unsigned int i = 0; (!global_abort) && (i < parms.reps); i++) {
-        beep_drivers_begin_tone(driver, parms.freq & 0xffff);
-        sleep_ms(driver, parms.length);
+    for (unsigned int i = 0; (!global_abort) && (i < note.reps); i++) {
+        beep_drivers_begin_tone(driver, note.freq & 0xffff);
+        sleep_ms(driver, note.length);
         beep_drivers_end_tone(driver);
-        if ((parms.end_delay == END_DELAY_YES) || ((i+1) < parms.reps)) {
-            sleep_ms(driver, parms.delay);
+        if ((note.end_delay == END_DELAY_YES) || ((i+1) < note.reps)) {
+            sleep_ms(driver, note.delay);
         }
     }
 }
@@ -492,20 +492,20 @@ int main(const int argc, char *const argv[])
     }
 
     /* Parse command line */
-    beep_parms_T *parms = (beep_parms_T *)malloc(sizeof(beep_parms_T));
-    if (NULL == parms) {
+    beep_note_T *note = (beep_note_T *)malloc(sizeof(beep_note_T));
+    if (NULL == note) {
         perror("malloc");
         exit(EXIT_FAILURE);
     }
-    parms->freq       = 0;
-    parms->length     = DEFAULT_LENGTH;
-    parms->reps       = DEFAULT_REPS;
-    parms->delay      = DEFAULT_DELAY;
-    parms->end_delay  = DEFAULT_END_DELAY;
-    parms->stdin_beep = DEFAULT_STDIN_BEEP;
-    parms->next       = NULL;
+    note->freq       = 0;
+    note->length     = DEFAULT_LENGTH;
+    note->reps       = DEFAULT_REPS;
+    note->delay      = DEFAULT_DELAY;
+    note->end_delay  = DEFAULT_END_DELAY;
+    note->stdin_beep = DEFAULT_STDIN_BEEP;
+    note->next       = NULL;
 
-    parse_command_line(argc, argv, parms);
+    parse_command_line(argc, argv, note);
 
     beep_driver *driver = NULL;
 
@@ -556,13 +556,11 @@ int main(const int argc, char *const argv[])
 
     /* This outermost while loop handles the possibility that -n/--new
      * has been used, i.e. that we have a sequence of multiple beeps
-     * specified.  Each loop iteration will play, then free() one parms
+     * specified.  Each loop iteration will play, then free() one note
      * instance.
      */
-    while ((!global_abort) && parms) {
-        beep_parms_T *next = parms->next;
-
-        if (parms->stdin_beep != STDIN_BEEP_NONE) {
+    while ((!global_abort) && note) {
+        if (note->stdin_beep != STDIN_BEEP_NONE) {
             /* In this case, beep is probably part of a pipe, in which
                case POSIX says stdin and out should be fully buffered.
                This however means very laggy performance with beep
@@ -577,27 +575,30 @@ int main(const int argc, char *const argv[])
 
             char sin[4096];
             while ((!global_abort) && (fgets(sin, 4096, stdin))) {
-                if (parms->stdin_beep == STDIN_BEEP_CHAR) {
+                if (note->stdin_beep == STDIN_BEEP_CHAR) {
                     for (char *ptr=sin; (!global_abort) && (*ptr); ptr++) {
                         putchar(*ptr);
                         fflush(stdout);
-                        play_beep(driver, *parms);
+                        play_note(driver, *note);
                     }
                 } else { /* STDIN_BEEP_LINE */
                     fputs(sin, stdout);
-                    play_beep(driver, *parms);
+                    play_note(driver, *note);
                 }
             }
         } else {
-            play_beep(driver, *parms);
+            play_note(driver, *note);
         }
 
-        /* Junk each parms struct after playing it */
-        free(parms);
-        parms = next;
+        /* Junk each note struct after playing it */
+        beep_note_T *next_note = note->next;
+        free(note);
+        note = next_note;
     }
 
-    beep_drivers_end_tone(driver);
+    if (global_abort) {
+        beep_drivers_end_tone(driver);
+    }
     beep_drivers_fini(driver);
 
     if (global_abort) {

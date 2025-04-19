@@ -1,4 +1,4 @@
-/** \file issue-6-benchmark.c
+/** \file issue-6-bench.c
  * \brief automatic open(2) benchmark for issue #6
  * \author Copyright (C) 2019 Hans Ulrich Niedermann
  *
@@ -16,13 +16,13 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
- * \defgroup issue-6-benchmark The issue-6-benchmark program
+ * \defgroup issue-6-bench The issue-6-bench program
  *
  * Usage: See print_usage() function just below the "#include"s.
  *
  * Build command (also works with all warnings on, -Werror, and clang):
  *
- *     $ gcc -o issue-6-benchmark issue-6-benchmark.c -lm
+ *     $ gcc -o issue-6-bench issue-6-bench.c -lm
  *
  * @{
  *
@@ -50,13 +50,13 @@
 
 
 /**
- * Print usage message for the issue-6-benchmark program.
+ * Print usage message for the issue-6-bench program.
  */
 static
 void print_usage(FILE *file, const char *const argv0)
 {
     fprintf(file,
-            "issue-6-benchmark - benchmark program for open(2) speed (github issue #6)\n"
+            "issue-6-bench - benchmark program for open(2) speed (github issue #6)\n"
             "Benchmark open(2)-and-close(2) cycles on console versus evdev speaker API.\n"
             "\n"
             "Usage:\n"
@@ -420,11 +420,11 @@ unsigned long repeats_for_measurement(const unsigned long repeats,
 /**
  * Run externally timed main_argc3() process via fork(2), execv(3), and waitpid(2).
  *
- * This runs a separate instance of `issue-6-benchmark` via
+ * This runs a separate instance of `issue-6-bench` via
  * `/usr/bin/time -v`. GNU time gives a lot more information about the
  * system resources used.
  *
- * @param argv0   The name issue-6-benchmark has been called, and
+ * @param argv0   The name issue-6-bench has been called, and
  *                which `/usr/bin/time -v` is going run now.
  * @param repeats The number of repeats to time.
  * @param device  The device to run the repeats on.
@@ -710,7 +710,7 @@ char *find_writable_tty(void)
 /**
  * Run benchmarks of console (autodetected /dev/ttyN) versus evdev.
  *
- * Implement issue-6-benchmark when called with zero command line
+ * Implement issue-6-bench when called with zero command line
  * parameters: Compare the performances of the autodetected /dev/ttyN
  * console device and the well-known evdev device.
  *
@@ -754,7 +754,7 @@ int main_argc1(const int argc, const char *const argv[])
 /**
  * Run benchmarks of console (device from cmdline) versus evdev.
  *
- * Implement issue-6-benchmark when called with one command line
+ * Implement issue-6-bench when called with one command line
  * parameter: Compare the performances of the console device given on
  * the command line and the well-known evdev device.
  *
@@ -822,7 +822,7 @@ int main_argc2(const int argc, const char *const argv[])
 /**
  * Run one benchmark of given repeats for given device.
  *
- * Implement issue-6-benchmark when called with two command line
+ * Implement issue-6-bench when called with two command line
  * parameters.
  *
  * This program first parses the command line to determine the number

@@ -103,6 +103,9 @@ INSTALL_PROGRAM = $(INSTALL) -m 0755 -p
 .PHONY: all
 all: all-local
 
+.PHONY: clean-local
+clean-local:
+
 
 ########################################################################
 # Initialize some things for the build system
@@ -234,9 +237,9 @@ endif
 # Define executables and their flags
 ########################################################################
 
-check_PROGRAMS            += issue-6-benchmark
-issue_6_benchmark_SOURCES  = issue-6-benchmark.c
-issue_6_benchmark_LDADD    = -lm
+check_PROGRAMS        += issue-6-bench
+issue_6_bench_SOURCES  = issue-6-bench.c
+issue_6_bench_LDADD    = -lm
 
 bin_PROGRAMS += beep
 beep_SOURCES  =
@@ -267,9 +270,7 @@ ifneq ($(BEEP_DEBUG_BUILD),)
 beep_SOURCES += beep-driver-noop.c
 endif
 
-beep_LDADD    =
-
-beep-log.o : override common_CPPFLAGS += -D_GNU_SOURCE
+beep.objs/beep-log.o : override common_CPPFLAGS += -D_GNU_SOURCE
 # beep-log.clang-o : override CFLAGS_clang += -Wno-format-nonliteral
 
 # sbin_PROGRAMS    += beep-foo
@@ -314,16 +315,27 @@ beep-usage.c: beep-usage.txt
 define define-link-rule
 CLEANFILES += $(1).map
 dist-files += $$($(2)_SOURCES)
-$(2)_OBJS := $$(foreach src,$$($(2)_SOURCES),$$(if $$(filter %.c,$$(src)),$$(src:%.c=%.o),$$(if $$(filter %.h,$$(src)),,$$(error Unhandled source type in $(2)_SOURCES: $$(src)))))
+$(2)_OBJS := $$(foreach src,$$($(2)_SOURCES),$$(if $$(filter %.c,$$(src)),$$(src:%.c=$(2).objs/%.o),$$(if $$(filter %.h,$$(src)),,$$(error Unhandled source type in $(2)_SOURCES: $$(src)))))
+
+.PHONY: clean-local-$(2)
+clean-local: clean-local-$(2)
+clean-local-$(2):
+	@$$(call print-rule-description,CLEANUP,temporary files related to $(2))
+	rm -rf $(2).deps $(2).objs
 
 $(1): $$($(2)_OBJS)
 	$$(inhibit-build-command)
 	@$$(call print-rule-description,LINK,$$@)
 	$$(CC) -Wl,-Map=$(1).map $$(common_CFLAGS) $$(CFLAGS) $$(common_LDFLAGS) $$($(2)_LDFLAGS) $$(LDFLAGS) -o $$@ $$^ $$(common_LDADD) $$($(2)_LDADD) $$(LDADD)
 
-$$(patsubst %.o,.deps/%.o.dep,$$($(2)_OBJS))):
+$(2).objs/%.o: %.c | $(2).deps $(2).objs
+	$$(inhibit-build-command)
+	@$$(call print-rule-description,COMPILE,$$@,$$<)
+	$$(CC) -MT $$@ -MMD -MP -MF $(2).deps/$$*.o.dep -I. $$(common_CPPFLAGS) $$(CPPFLAGS) $$($(2)_CPPFLAGS) $$(common_CFLAGS) $$(CFLAGS) $$($(2)_CFLAGS) -o $$@ -c $$<
 
--include $$(wildcard $$(patsubst %.o,.deps/%.o.dep,$$($(2)_OBJS)))
+$$(patsubst $(2).objs/%.o,$(2).deps/%.o.dep,$$($(2)_OBJS))):
+
+-include $$(wildcard $$(patsubst $(2).objs/%.o,$(2).deps/%.o.dep,$$($(2)_OBJS)))
 endef
 
 
@@ -331,14 +343,15 @@ $(foreach exec,$(bin_PROGRAMS),  $(eval $(call define-link-rule,$(exec),$(subst 
 $(foreach exec,$(check_PROGRAMS),$(eval $(call define-link-rule,$(exec),$(subst -,_,$(exec)),check)))
 $(foreach exec,$(sbin_PROGRAMS), $(eval $(call define-link-rule,$(exec),$(subst -,_,$(exec)),sbin)))
 
-%.o: %.c | .deps
+%.deps:
 	$(inhibit-build-command)
-	@$(call print-rule-description,COMPILE,$@,$<)
-	$(CC) -MT $@ -MMD -MP -MF .deps/$*.o.dep $(common_CPPFLAGS) $(CPPFLAGS) $(common_CFLAGS) $(CFLAGS) -o $@ -c $<
+	@$(call print-rule-description,MKDIR,$@)
+	$(MKDIR_P) $@
 
-.deps:
+%.objs:
 	$(inhibit-build-command)
-	@$(MKDIR_P) $@
+	@$(call print-rule-description,MKDIR,$@)
+	$(MKDIR_P) $@
 
 
 ########################################################################
@@ -402,7 +415,7 @@ REPLACEMENTS += -e 's|[@]docdir@|$(docdir)|g'
 EXTRA_DIST    += beep-config.h.in
 CLEANFILES    += beep-config.h
 BUILT_SOURCES += beep-config.h
-beep-main.o : beep-config.h
+beep.objs/beep-main.o : beep-config.h
 
 EXTRA_DIST += Doxyfile.in
 CLEANFILES += Doxyfile
@@ -499,18 +512,6 @@ EXTRA_DIST += testbuild-all
 EXTRA_DIST += .gitignore
 EXTRA_DIST += .github/workflows/beep-build.yml
 EXTRA_DIST += .github/workflows/codeql.yml
-
-.PHONY: clean
-clean:
-	@$(call print-rule-description,CLEANUP,all built files)
-	rm -f $(bin_PROGRAMS) $(sbin_PROGRAMS) $(check_PROGRAMS)
-	rm -f $(CLEANFILES)
-	rm -f *.dep
-	rm -rf .deps
-	rm -f *.lst *.gcc-lst
-	rm -f tests/*.new tests/*.actual
-	rm -rf dox
-	rm -f *.o *.i *.s *.bc
 
 .PHONY: doc
 doc: $(doc_DATA)
@@ -704,6 +705,23 @@ endif
 
 
 ########################################################################
+# Cleanup
+########################################################################
+
+.PHONY: clean
+clean: clean-local
+	@$(call print-rule-description,CLEANUP,all built files)
+	rm -f $(bin_PROGRAMS) $(sbin_PROGRAMS) $(check_PROGRAMS)
+	rm -f $(CLEANFILES)
+	rm -f *.dep
+	rm -rf .deps
+	rm -f *.lst *.gcc-lst
+	rm -f tests/*.new tests/*.actual
+	rm -rf dox
+	rm -f *.o *.i *.s *.bc
+
+
+########################################################################
 # Print rule descriptions and silent rules
 #
 # This is a bit more complex than mad scientist's simple silent
@@ -732,7 +750,7 @@ V=
 ifeq (,$(V))
 .SILENT:
 print-rule-description = $(or\
-$(if $(3),printf "%12s %-22s FROM %s\n" "$(1)" "$(2)" "$(3)"),\
+$(if $(3),printf "%12s %-35s FROM %s\n" "$(1)" "$(2)" "$(3)"),\
 $(if $(2),printf "%12s %s\n" "$(1)" "$(2)"),\
 $(error $(0) requires at least two parameters))
 else

@@ -120,6 +120,9 @@ has encountered an error and has bailed out.
 When set to a number between -999 and 999,
 .B BEEP_LOG_LEVEL
 will be used as the default loglevel until overridden by a command line parameter.
+.TP
+.BR BEEP_PCSPKR_LOGFD
+If valid, the \fBBEEP_PCSPKR_LOGFD\fR contains a decimal string representation of the file descriptor to log  pcspkr type events to: (begin tone with given frequency or begin pause). Otherwise, no such logs will happen.
 .\"
 .\" ====================================================================
 .\"

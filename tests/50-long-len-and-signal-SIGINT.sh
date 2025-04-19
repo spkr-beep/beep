@@ -1,3 +1,4 @@
+#!/bin/sh
 : REQUIRES_HARDWARE
 
 ts_begin="$(date +%s)"

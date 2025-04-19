@@ -1,11 +1,14 @@
 # Files that should not be tracked by Git
 
 # The compiled executables
+/*.map
 /beep
+/issue-6-bench
+/issue-6-benchmark
+
+# Old compiled executables
 /*.clang
 /*.gcc
-/*.map
-/issue-6-benchmark
 
 # Built sources
 /beep-config.h
@@ -13,6 +16,11 @@
 /beep-usage.txt
 
 # Build intermediates
+/*.deps/
+/*.objs/
+/beep.1
+
+# Old build intermediates
 *.dep
 *.tmp
 *.clang-o
@@ -23,7 +31,6 @@
 *.bc
 *.lst
 *.gcc-lst
-/beep.1
 
 # The compressed man page
 /beep.1.gz
@@ -47,6 +54,8 @@
 /tests/*.actual
 /tests/*.output.new
 /tests/*.output
+/tests/*.pcspkr-actual
+/tests/*.pcspkr-expected
 
 # Misc results
 *.strace

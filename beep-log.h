@@ -28,6 +28,7 @@
 #define BEEP_LOG_H
 
 
+#include <stdint.h>
 #include <stdlib.h>
 
 
@@ -85,6 +86,14 @@ void log_verbose(const char *const module,
 /** Initialize the log message prefix from the non-path part of argv[0]. */
 void log_init(const int argc, char *const argv[])
     __attribute__(( nonnull(2) ));
+
+
+/** Log PC speaker tone on event to special pcspkr event file (if at all) */
+void log_pcspkr_tone(const uint16_t freq);
+
+
+/** Log PC speaker tone off event to special pcspkr event file (if at all) */
+void log_pcspkr_pause(void);
 
 
 #endif /* !defined(BEEP_LOG_H) */

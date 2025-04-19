@@ -94,44 +94,64 @@ if true; then
 	base="$(basename $(basename "$test" .bash) .sh)"
 	dir="$(dirname "$test")"
 	actual="${dir}/${base}.actual"
+	pcspkr_actual="${dir}/${base}.pcspkr-actual"
+	pcspkr_expected="${dir}/${base}.pcspkr-expected"
 	printf "${hilite}%-32s${normal} " "${base}"
 	if "$have_no_hardware" && grep "^: REQUIRES_HARDWARE" "$test" > /dev/null; then
 	    skip="$(expr "${skip}" + 1)"
 	    echo "$skipmsg"
-	elif "${test}" > "${actual}.new" 2>&1; then
+	elif env BEEP_PCSPKR_LOGFD=3 "${test}" > "${actual}.new" 2>&1 3>"$pcspkr_actual"; then
 	    canonicalize_output < "${actual}.new" > "${actual}"
-	    expects_output=false
-	    for file in "${dir}/${base}.expected".[0-9]; do
-		if test -f "$file"; then
-		    expects_output=true
-		    break
+
+	    tc_failed=false
+
+	    if test -f "$pcspkr_expected"; then
+		if ${CMP} --quiet "$pcspkr_expected" "$pcspkr_actual"; then
+		    :
+		else
+		    fail="$(expr "$fail" + 1)"
+		    tc_failed=true
+		    echo "$failmsg"
+		    ${DIFF} -u "$pcspkr_expected" "$pcspkr_actual"
 		fi
-	    done
-	    if "${expects_output}"; then
-		expect_fail="true"
-		for expected in "${dir}/${base}.expected".[0-9]; do
-		    if ${CMP} --quiet "${expected}" "${actual}"; then
-			pass="$(expr "${pass}" + 1)"
-			echo "${passmsg}${expected/#*expected}"
-			expect_fail="false"
+	    fi
+
+	    if "$tc_failed"; then
+		:
+	    else
+		expects_output=false
+		for file in "${dir}/${base}.expected".[0-9]; do
+		    if test -f "$file"; then
+			expects_output=true
 			break
 		    fi
 		done
-		if "$expect_fail"; then
-		    fail="$(expr "${fail}" + 1)"
-		    echo "${failmsg}"
+		if "${expects_output}"; then
+		    expect_fail="true"
 		    for expected in "${dir}/${base}.expected".[0-9]; do
-			${DIFF} -u "${expected}" "${actual}"
+			if ${CMP} --quiet "${expected}" "${actual}"; then
+			    pass="$(expr "${pass}" + 1)"
+			    echo "${passmsg}${expected/#*expected}"
+			    expect_fail="false"
+			    break
+			fi
 		    done
-		fi
-	    else
-		if test -s "${actual}"; then
-		    fail="$(expr "${fail}" + 1)"
-		    echo "${failmsg}"
-		    cat "${actual}"
+		    if "$expect_fail"; then
+			fail="$(expr "${fail}" + 1)"
+			echo "${failmsg}"
+			for expected in "${dir}/${base}.expected".[0-9]; do
+			    ${DIFF} -u "${expected}" "${actual}"
+			done
+		    fi
 		else
-		    pass="$(expr "${pass}" + 1)"
-		    echo "${passmsg}"
+		    if test -s "${actual}"; then
+			fail="$(expr "${fail}" + 1)"
+			echo "${failmsg}"
+			cat "${actual}"
+		    else
+			pass="$(expr "${pass}" + 1)"
+			echo "${passmsg}"
+		    fi
 		fi
 	    fi
 	else

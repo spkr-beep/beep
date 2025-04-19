@@ -23,10 +23,16 @@
  *
  */
 
+#include <inttypes.h>
+#include <limits.h>
 #include <stdarg.h>
+#include <stdbool.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#include <time.h>
 
 #include "beep-log.h"
 
@@ -40,6 +46,59 @@ int log_level = 0;
 
 /* documented in header file */
 const char *progname = "beep-log";
+
+
+/** time of program startup (to calculate relative time for log messages) */
+static struct timespec startup_ts;
+
+
+/** file to log beep notes to */
+static FILE *beep_pcspkr_log = NULL;
+
+
+/* documented in header file */
+void log_pcspkr_tone(const uint16_t freq) {
+    if (!beep_pcspkr_log) {
+        return;
+    }
+    struct timespec now_ts;
+    clock_gettime(CLOCK_MONOTONIC, &now_ts);
+
+    struct timespec rel_ts;
+    rel_ts.tv_nsec = now_ts.tv_nsec - startup_ts.tv_nsec;
+    rel_ts.tv_sec  = now_ts.tv_sec  - startup_ts.tv_sec;
+    while (rel_ts.tv_nsec < 0) {
+        rel_ts.tv_nsec += 1000000000LL;
+        rel_ts.tv_sec--;
+    }
+
+    fprintf(beep_pcspkr_log,
+            "%lu.%02lu tone %" PRIu16 "Hz\n",
+            rel_ts.tv_sec, rel_ts.tv_nsec / 10000000L, freq);
+}
+
+
+/* documented in header file */
+void log_pcspkr_pause(void) {
+    if (!beep_pcspkr_log) {
+        return;
+    }
+
+    struct timespec now_ts;
+    clock_gettime(CLOCK_MONOTONIC, &now_ts);
+
+    struct timespec rel_ts;
+    rel_ts.tv_nsec = now_ts.tv_nsec - startup_ts.tv_nsec;
+    rel_ts.tv_sec  = now_ts.tv_sec  - startup_ts.tv_sec;
+    while (rel_ts.tv_nsec < 0) {
+        rel_ts.tv_nsec += 1000000000LL;
+        rel_ts.tv_sec--;
+    }
+
+    fprintf(beep_pcspkr_log,
+            "%lu.%02lu pause\n",
+            rel_ts.tv_sec, ((rel_ts.tv_nsec+10000000L) / 20000000L) * 2L);
+}
 
 
 /**
@@ -60,9 +119,11 @@ void log_internal_vf(const char *const module, const char *levelstr,
     va_copy(copied_args, args);
 
     if (module) {
-        fprintf(stdout, "%s: %s: %s: ", progname, levelstr, module);
+        fprintf(stdout, "%s: %s: %s: ",
+                progname, levelstr, module);
     } else {
-        fprintf(stdout, "%s: %s: ", progname, levelstr);
+        fprintf(stdout, "%s: %s: ",
+                progname, levelstr);
     }
     vfprintf(stdout, format, copied_args);
     fputc('\n', stdout);
@@ -154,13 +215,30 @@ void log_constructor(void)
 static
 void log_constructor(void)
 {
-    const char *beep_log_level = secure_getenv("BEEP_LOG_LEVEL");
-    /* silently ignore all errors, keeping the default log_level */
-    if (beep_log_level) {
-        if (*beep_log_level) {
+    if (true) {
+        clock_gettime(CLOCK_MONOTONIC, &startup_ts);
+
+        const char *const env_beep_pcspkr_logfd =
+            secure_getenv("BEEP_PCSPKR_LOGFD");
+        if (env_beep_pcspkr_logfd && *env_beep_pcspkr_logfd) {
             char *endptr = NULL;
-            const long int i = strtol(beep_log_level, &endptr, 10);
-            if (beep_log_level != endptr) {
+            const long int i = strtol(env_beep_pcspkr_logfd, &endptr, 10);
+            if (endptr && (env_beep_pcspkr_logfd != endptr)) {
+                if ((*endptr == '\0') && (i >= 0) && (i < INT_MAX)) {
+                    const int fd = i;
+                    beep_pcspkr_log = fdopen(fd, "w");
+                }
+            }
+        }
+    }
+
+    if (true) {
+        const char *const env_beep_log_level = secure_getenv("BEEP_LOG_LEVEL");
+        /* silently ignore all errors, keeping the default log_level */
+        if (env_beep_log_level && *env_beep_log_level) {
+            char *endptr = NULL;
+            const long int i = strtol(env_beep_log_level, &endptr, 10);
+            if (endptr && (env_beep_log_level != endptr)) {
                 if (*endptr == '\0') {
                     if ((-999<=i) && (i<=999)) {
                         log_level = (int) i;

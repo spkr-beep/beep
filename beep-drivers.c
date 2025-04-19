@@ -90,6 +90,7 @@ void beep_drivers_fini(beep_driver *driver)
 /* documented in header file */
 void beep_drivers_begin_tone(beep_driver *driver, const uint16_t freq)
 {
+    log_pcspkr_tone(freq);
     driver->begin_tone(driver, freq);
 }
 
@@ -97,6 +98,7 @@ void beep_drivers_begin_tone(beep_driver *driver, const uint16_t freq)
 /* documented in header file */
 void beep_drivers_end_tone(beep_driver *driver)
 {
+    log_pcspkr_pause();
     driver->end_tone(driver);
 }
 
